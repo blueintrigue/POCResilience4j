@@ -1,0 +1,10 @@
+/workspace/src/main/java/com/example/gatewaypoc/Application.java
+/workspace/src/main/java/com/example/gatewaypoc/config/DownstreamProperties.java
+/workspace/src/main/java/com/example/gatewaypoc/config/WebClientConfig.java
+/workspace/src/main/java/com/example/gatewaypoc/controller/GatewayController.java
+/workspace/src/main/java/com/example/gatewaypoc/observability/CircuitBreakerEventsLogger.java
+/workspace/src/main/java/com/example/gatewaypoc/observability/CircuitBreakersHealthIndicator.java
+/workspace/src/main/java/com/example/gatewaypoc/resilience/HalfOpenAdmissionService.java
+/workspace/src/main/java/com/example/gatewaypoc/resilience/HalfOpenConsecutiveEnforcer.java
+/workspace/src/main/java/com/example/gatewaypoc/service/ServiceAClient.java
+/workspace/src/main/java/com/example/gatewaypoc/service/ServiceBClient.java

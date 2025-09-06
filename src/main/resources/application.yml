@@ -1,0 +1,103 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: resilience4j-gateway-poc
+  cloud:
+    config:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Per-service configurations
+downstreams:
+  services:
+    serviceA:
+      baseUrl: http://localhost:9091
+      timeout: 2s
+      halfOpenAdmission:
+        allowPercent: 50
+      halfOpenConsecutive:
+        successToClose: 50
+        failureToOpen: 50
+      cb:
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 50
+        failureRateThreshold: 100 # consecutive failures semantics via 100% failure over window of 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 2s
+        permittedNumberOfCallsInHalfOpenState: 50
+        waitDurationInOpenState: 60s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    serviceB:
+      baseUrl: http://localhost:9092
+      timeout: 2s
+      halfOpenAdmission:
+        allowPercent: 50
+      halfOpenConsecutive:
+        successToClose: 50
+        failureToOpen: 50
+      cb:
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 50
+        failureRateThreshold: 100
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 2s
+        permittedNumberOfCallsInHalfOpenState: 50
+        waitDurationInOpenState: 60s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+    instances:
+      serviceA:
+        baseConfig: default
+        slidingWindowSize: ${downstreams.services.serviceA.cb.slidingWindowSize}
+        minimumNumberOfCalls: ${downstreams.services.serviceA.cb.minimumNumberOfCalls}
+        failureRateThreshold: ${downstreams.services.serviceA.cb.failureRateThreshold}
+        slowCallRateThreshold: ${downstreams.services.serviceA.cb.slowCallRateThreshold}
+        slowCallDurationThreshold: ${downstreams.services.serviceA.cb.slowCallDurationThreshold}
+        permittedNumberOfCallsInHalfOpenState: ${downstreams.services.serviceA.cb.permittedNumberOfCallsInHalfOpenState}
+        waitDurationInOpenState: ${downstreams.services.serviceA.cb.waitDurationInOpenState}
+        automaticTransitionFromOpenToHalfOpenEnabled: ${downstreams.services.serviceA.cb.automaticTransitionFromOpenToHalfOpenEnabled}
+      serviceB:
+        baseConfig: default
+        slidingWindowSize: ${downstreams.services.serviceB.cb.slidingWindowSize}
+        minimumNumberOfCalls: ${downstreams.services.serviceB.cb.minimumNumberOfCalls}
+        failureRateThreshold: ${downstreams.services.serviceB.cb.failureRateThreshold}
+        slowCallRateThreshold: ${downstreams.services.serviceB.cb.slowCallRateThreshold}
+        slowCallDurationThreshold: ${downstreams.services.serviceB.cb.slowCallDurationThreshold}
+        permittedNumberOfCallsInHalfOpenState: ${downstreams.services.serviceB.cb.permittedNumberOfCallsInHalfOpenState}
+        waitDurationInOpenState: ${downstreams.services.serviceB.cb.waitDurationInOpenState}
+        automaticTransitionFromOpenToHalfOpenEnabled: ${downstreams.services.serviceB.cb.automaticTransitionFromOpenToHalfOpenEnabled}
+  timelimiter:
+    instances:
+      serviceA:
+        timeoutDuration: ${downstreams.services.serviceA.timeout}
+        cancelRunningFuture: true
+      serviceB:
+        timeoutDuration: ${downstreams.services.serviceB.timeout}
+        cancelRunningFuture: true
+
+
